@@ -18,8 +18,6 @@ package e2e
 
 import (
 	"flag"
-	"fmt"
-	"log"
 	"os"
 	"testing"
 
@@ -29,29 +27,13 @@ import (
 	"github.com/tvs/kubernetes-service-tests/test/e2e/framework"
 )
 
-func handleFlags() {
-	framework.RegisterTimeoutFlags(flag.CommandLine)
-}
-
 func TestMain(m *testing.M) {
-	var versionFlag bool
-	flag.BoolVar(&versionFlag, "version", false, "Displays version information.")
+	framework.DefaultTestFlags(&framework.TestContext)
+	flag.Parse()
+	framework.AfterReadingAllFlags(&framework.TestContext)
 
-	handleFlags()
-
-	cfg, err := envconf.NewFromFlags()
-	if err != nil {
-		log.Fatalf("failed to build envconf from flags: %s", err)
-	}
-
-	if versionFlag {
-		fmt.Printf("%s\n", versionString())
-		os.Exit(0)
-	}
-
-	framework.AfterReadingAllFlags(&framework.TestContext, cfg)
-
-	// Generate a namespace for the e2e test and ensure it's cleaned up
+	// TODO(tvs): Ensure generated namespace is passed to tests
+	// Generate a namespace for the e2e test to run in and ensure it's cleaned up
 	namespace := envconf.RandomName("k8s-svc-e2e", 16)
 	framework.TestContext.TestEnv.Setup(
 		envfuncs.CreateNamespace(namespace),
@@ -61,4 +43,8 @@ func TestMain(m *testing.M) {
 	)
 
 	os.Exit(framework.TestContext.TestEnv.Run(m))
+}
+
+func TestE2E(t *testing.T) {
+	RunE2ETests(t, &framework.TestContext)
 }

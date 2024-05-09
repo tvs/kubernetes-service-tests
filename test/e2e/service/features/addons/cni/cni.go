@@ -14,11 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cluster
+package cni
 
 import (
 	"testing"
+
+	"sigs.k8s.io/e2e-framework/pkg/features"
+
+	"github.com/tvs/kubernetes-service-tests/test/e2e/framework"
+	"github.com/tvs/kubernetes-service-tests/test/e2e/service/features/addons/cni/antrea"
+	"github.com/tvs/kubernetes-service-tests/test/e2e/service/features/addons/cni/calico"
 )
 
-func TestCluster(t *testing.T) {
+// Features returns a list of CNI test features to be run in a given context
+func Features(t *testing.T, tc *framework.TestContextType) []features.Feature {
+	return []features.Feature{
+		antrea.Feature(t, tc),
+		calico.Feature(t, tc),
+	}
 }

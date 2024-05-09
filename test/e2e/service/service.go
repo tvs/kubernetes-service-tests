@@ -14,9 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package tanzukubernetescluster
+package service
 
-import "testing"
+import (
+	"testing"
 
-func TestAddon(t *testing.T) {
+	"github.com/tvs/kubernetes-service-tests/test/e2e/framework"
+)
+
+func ServiceTests(t *testing.T, tc *framework.TestContextType) {
+	// TODO(tvs): Invoke Cluster, TKC, TKR, etc. tests
 }

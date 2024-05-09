@@ -17,9 +17,10 @@ limitations under the License.
 package testlabels
 
 const (
-	kindLabelKey          = "kind"
-	kindKubernetesService = "KubernetesService"
-	kindWorkloadCluster   = "WorkloadCluster"
+	kindLabelKey               = "kind"
+	kindKubernetesService      = "KubernetesService"
+	kindKubernetesDistribution = "KubernetesDistribution"
+	kindWorkloadCluster        = "WorkloadCluster"
 )
 
 func kindLabel(v string) (string, string) {
@@ -30,6 +31,13 @@ func kindLabel(v string) (string, string) {
 // targeted to the Kubernetes Service. The return value must be passed into
 // [features.WithLabel].
 func KubernetesService() (string, string) {
+	return kindLabel(kindKubernetesService)
+}
+
+// KubernetesDistribution specifies that a certain test or group of tests are
+// targeted to the Kubernetes Distribution. The return value must be passed
+// into [features.WithLabel].
+func KubernetesDistribution() (string, string) {
 	return kindLabel(kindKubernetesService)
 }
 

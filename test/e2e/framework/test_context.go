@@ -17,6 +17,11 @@ limitations under the License.
 package framework
 
 import (
+	"flag"
+	"fmt"
+	"log"
+	"os"
+
 	"sigs.k8s.io/e2e-framework/klient/conf"
 	"sigs.k8s.io/e2e-framework/pkg/env"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
@@ -33,6 +38,9 @@ type TestContextType struct {
 	// exported. Its values can be accessed through
 	// NewTimeoutContext.
 	timeouts TimeoutContext
+
+	// versionFlag displays version information then exits.
+	versionFlag bool
 }
 
 // TestContext should be used by all tests to access common context data.
@@ -40,9 +48,49 @@ var TestContext = TestContextType{
 	timeouts: defaultTimeouts,
 }
 
+// RegisterCommonFlags registers flags common to all e2e test suites.
+// The flag set can be flag.CommandLine (if desired) or a custom
+// flag set that then gets passed to viperconfig.ViperizeFlags.
+//
+// The other Register*Flags methods below can be used to add more
+// test-specific flags. However, those settings then get added
+// regardless whether the test is actually in the test suite.
+//
+// For tests that have been converted to registering their
+// options themselves, copy flags from test/e2e/framework/config
+// as shown in HandleFlags.
+func RegisterCommonFlags(flags *flag.FlagSet) {
+	flags.BoolVar(&TestContext.versionFlag, "version", false, "Displays version information")
+}
+
+// DefaultTestFlags establishes the common default flags that configure a
+// TestContextType
+func DefaultTestFlags(t *TestContextType) {
+	RegisterCommonFlags(flag.CommandLine)
+	RegisterTimeoutFlags(flag.CommandLine)
+
+}
+
+// processTerminatingFlags processes any flags that are intended to terminate
+// execution before tests start. This is used to report information about the
+// tests themselves.
+func processTerminatingFlags(t *TestContextType) {
+	if t.versionFlag {
+		fmt.Printf("%s\n", versionString())
+		os.Exit(0)
+	}
+}
+
 // AfterReadingAllFlags makes changes to the context after all flags
 // have been read and prepares the process for a test run.
-func AfterReadingAllFlags(t *TestContextType, cfg *envconf.Config) {
+func AfterReadingAllFlags(t *TestContextType) {
+	processTerminatingFlags(t)
+
+	cfg, err := envconf.NewFromFlags()
+	if err != nil {
+		log.Fatalf("failed to build envconf from flags: %s", err)
+	}
+
 	cfg.WithKubeconfigFile(conf.ResolveKubeConfigFile())
 
 	t.TestEnv = env.NewWithConfig(cfg)
