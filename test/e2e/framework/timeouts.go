@@ -49,12 +49,12 @@ type TimeoutContext struct {
 }
 
 // RegisterTimeoutFlags registers flags related to timeouts
-func RegisterTimeoutFlags(flags *flag.FlagSet) {
-	flags.DurationVar(&TestContext.timeouts.Poll, "polling-interval", TestContext.timeouts.Poll, "Interval between API calls when waiting for a condition.")
-	flags.DurationVar(&TestContext.timeouts.PodStart, "pod-start-timeout", TestContext.timeouts.PodStart, "Timeout for waiting for a pod to be started.")
-	flags.DurationVar(&TestContext.timeouts.PodDelete, "pod-delete-timeout", TestContext.timeouts.PodDelete, "Timeout for waiting for a pod to be deleted.")
-	flags.DurationVar(&TestContext.timeouts.NodeSchedulable, "node-schedulable-timeout", TestContext.timeouts.NodeSchedulable, "Timeout for waiting for a/all nodes to be schedulable.")
-	flags.DurationVar(&TestContext.timeouts.ClusterReady, "cluster-ready-timeout", TestContext.timeouts.ClusterReady, "Timeout for waiting for a cluster to be ready.")
+func RegisterTimeoutFlags(flags *flag.FlagSet, tc *TestContextType) {
+	flags.DurationVar(&tc.timeouts.Poll, "polling-interval", TestContext.timeouts.Poll, "Interval between API calls when waiting for a condition.")
+	flags.DurationVar(&tc.timeouts.PodStart, "pod-start-timeout", TestContext.timeouts.PodStart, "Timeout for waiting for a pod to be started.")
+	flags.DurationVar(&tc.timeouts.PodDelete, "pod-delete-timeout", TestContext.timeouts.PodDelete, "Timeout for waiting for a pod to be deleted.")
+	flags.DurationVar(&tc.timeouts.NodeSchedulable, "node-schedulable-timeout", TestContext.timeouts.NodeSchedulable, "Timeout for waiting for a/all nodes to be schedulable.")
+	flags.DurationVar(&tc.timeouts.ClusterReady, "cluster-ready-timeout", TestContext.timeouts.ClusterReady, "Timeout for waiting for a cluster to be ready.")
 }
 
 // NewTimeoutContext returns a TimeoutContext with all values set either to

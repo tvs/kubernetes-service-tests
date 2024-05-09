@@ -22,7 +22,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"testing"
+	"time"
 
 	"sigs.k8s.io/e2e-framework/klient/conf"
 	"sigs.k8s.io/e2e-framework/pkg/env"
@@ -36,6 +38,17 @@ import (
 type TestContextType struct {
 	// TestEnv is a global test environment for use with all test runners
 	TestEnv env.Environment
+
+	// shuffleFlag contains the contents of the command line flag that is
+	// used to set the Shuffle boolean and the ShuffleSeed integer
+	shuffleFlag string
+
+	// Shuffle indicates that tests within a sequence should be shuffled.
+	// This does not shuffle the order of sequences.
+	Shuffle bool
+
+	// ShuffleSeed is the seed used when setting up the RNG used for shuffling.
+	ShuffleSeed int64
 
 	// timeouts contains user-configurable timeouts for various operations.
 	// Individual Framework instance also have such timeouts which may be
@@ -94,32 +107,48 @@ var TestContext = TestContextType{
 // For tests that have been converted to registering their
 // options themselves, copy flags from test/e2e/framework/config
 // as shown in HandleFlags.
-func RegisterCommonFlags(flags *flag.FlagSet) {
-	flags.BoolVar(&TestContext.versionFlag, "version", false, "Displays version information")
+func RegisterCommonFlags(flags *flag.FlagSet, tc *TestContextType) {
+	flags.BoolVar(&tc.versionFlag, "version", false, "Displays version information")
+	flags.StringVar(&tc.shuffleFlag, "shuffle", "off", "Shuffle tests within testing sequences. Valid values are 'off', 'on', or a valid integer that will be used as the RNG seed.")
 }
 
 // DefaultTestFlags establishes the common default flags that configure a
 // TestContextType
 func DefaultTestFlags(t *TestContextType) {
-	RegisterCommonFlags(flag.CommandLine)
-	RegisterTimeoutFlags(flag.CommandLine)
-
+	RegisterCommonFlags(flag.CommandLine, t)
+	RegisterTimeoutFlags(flag.CommandLine, t)
 }
 
-// processTerminatingFlags processes any flags that are intended to terminate
-// execution before tests start. This is used to report information about the
-// tests themselves.
-func processTerminatingFlags(t *TestContextType) {
+// processAndValidateFlags semantically validates flag values and processes
+// flag behavior before tests start. This is used to configure the TestContext,
+// as well as to report information about the tests themselves.
+func processAndValidateFlags(t *TestContextType) {
 	if t.versionFlag {
 		fmt.Printf("%s\n", versionString())
 		os.Exit(0)
 	}
+
+	if t.shuffleFlag == "off" {
+		t.Shuffle = false
+	} else {
+		t.Shuffle = true
+		var err error
+		if t.shuffleFlag == "on" {
+			t.ShuffleSeed = time.Now().UnixNano()
+		} else {
+			t.ShuffleSeed, err = strconv.ParseInt(t.shuffleFlag, 10, 64)
+			if err != nil {
+				log.Fatalf(`-shuffle should be "off", "on", or a valid integer: %s`, err)
+			}
+		}
+	}
+	// TODO(tvs): Log shuffle seed
 }
 
 // AfterReadingAllFlags makes changes to the context after all flags
 // have been read and prepares the process for a test run.
 func AfterReadingAllFlags(t *TestContextType) {
-	processTerminatingFlags(t)
+	processAndValidateFlags(t)
 
 	cfg, err := envconf.NewFromFlags()
 	if err != nil {

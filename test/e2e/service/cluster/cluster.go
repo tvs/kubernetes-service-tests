@@ -27,17 +27,19 @@ import (
 )
 
 func ClusterTests(t *testing.T, tc *framework.TestContextType) {
+	builder := framework.NewTestRunner()
+
 	// TODO(tvs): Cluster creation test
 
 	// Run feature tests in parallel
-	feat := []features.Feature{}
-	feat = append(feat, cni.Features(t, tc)...)
-	feat = append(feat, cloudprovider.Features(t, tc)...)
-
-	framework.TestContext.TestInParallel(t, feat...)
+	parallelFeatures := []features.Feature{}
+	parallelFeatures = append(parallelFeatures, cni.Features(t, tc)...)
+	parallelFeatures = append(parallelFeatures, cloudprovider.Features(t, tc)...)
+	builder.WithParallelSequence(parallelFeatures...)
 
 	// TODO(tvs): Cluster upgrade test
 
-	// TODO(tvs):
+	// TODO(tvs): Cluster deletion test
 
+	builder.Runner().Test(t, tc)
 }
