@@ -23,24 +23,21 @@ import (
 	"os"
 	"testing"
 
-	"github.com/onsi/ginkgo/v2"
-
-	ctrlog "sigs.k8s.io/controller-runtime/pkg/log"
-	"sigs.k8s.io/e2e-framework/klient/conf"
-	"sigs.k8s.io/e2e-framework/pkg/env"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
 	"sigs.k8s.io/e2e-framework/pkg/envfuncs"
+
+	"github.com/tvs/kubernetes-service-tests/test/e2e/framework"
 )
 
-var (
-	testenv env.Environment
-)
+func handleFlags() {
+	framework.RegisterTimeoutFlags(flag.CommandLine)
+}
 
 func TestMain(m *testing.M) {
-	ctrlog.SetLogger(ginkgo.GinkgoLogr)
-
 	var versionFlag bool
 	flag.BoolVar(&versionFlag, "version", false, "Displays version information.")
+
+	handleFlags()
 
 	cfg, err := envconf.NewFromFlags()
 	if err != nil {
@@ -52,22 +49,16 @@ func TestMain(m *testing.M) {
 		os.Exit(0)
 	}
 
-	cfg.WithKubeconfigFile(conf.ResolveKubeConfigFile())
-
-	testenv = env.NewWithConfig(cfg)
+	framework.AfterReadingAllFlags(&framework.TestContext, cfg)
 
 	// Generate a namespace for the e2e test and ensure it's cleaned up
 	namespace := envconf.RandomName("k8s-svc-e2e", 16)
-	testenv.Setup(
+	framework.TestContext.TestEnv.Setup(
 		envfuncs.CreateNamespace(namespace),
 	)
-	testenv.Finish(
+	framework.TestContext.TestEnv.Finish(
 		envfuncs.DeleteNamespace(namespace),
 	)
 
-	os.Exit(testenv.Run(m))
-}
-
-func TestE2E(t *testing.T) {
-	RunE2ETests(t, testenv)
+	os.Exit(framework.TestContext.TestEnv.Run(m))
 }

@@ -14,18 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package e2e
+package tanzukubernetescluster
 
-import (
-	"testing"
+import "testing"
 
-	"github.com/onsi/ginkgo/v2"
-
-	"sigs.k8s.io/e2e-framework/pkg/env"
-)
-
-// RunE2ETests runs the E2E tests using the Ginkgo runner
-// This function is called on each Ginkgo node in parallel mode.
-func RunE2ETests(t *testing.T, testenv env.Environment) {
-	ginkgo.RunSpecs(t, "Kubernetes Service e2e suite")
+func TestAddon(t *testing.T) {
 }

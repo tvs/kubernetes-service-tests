@@ -17,8 +17,8 @@ limitations under the License.
 package cluster
 
 import (
-	"github.com/tvs/kubernetes-service-tests/test/e2e/framework"
+	"testing"
 )
 
-var _ = framework.KubernetesServiceDescribe(func() {
-})
+func TestCluster(t *testing.T) {
+}
