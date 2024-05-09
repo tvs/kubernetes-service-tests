@@ -34,9 +34,7 @@ func ClusterTests(t *testing.T, tc *framework.TestContextType) {
 	feat = append(feat, cni.Features(t, tc)...)
 	feat = append(feat, cloudprovider.Features(t, tc)...)
 
-	// TODO(tvs): Ensure features do not have the slow or serialized label when
-	// run in parallel
-	framework.TestContext.TestEnv.TestInParallel(t, feat...)
+	framework.TestContext.TestInParallel(t, feat...)
 
 	// TODO(tvs): Cluster upgrade test
 

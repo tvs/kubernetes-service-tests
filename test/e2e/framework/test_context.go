@@ -17,14 +17,19 @@ limitations under the License.
 package framework
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"testing"
 
 	"sigs.k8s.io/e2e-framework/klient/conf"
 	"sigs.k8s.io/e2e-framework/pkg/env"
 	"sigs.k8s.io/e2e-framework/pkg/envconf"
+	"sigs.k8s.io/e2e-framework/pkg/types"
+
+	"github.com/tvs/kubernetes-service-tests/test/e2e/framework/testlabels"
 )
 
 // TestContextType contains test settings and global state.
@@ -41,6 +46,36 @@ type TestContextType struct {
 
 	// versionFlag displays version information then exits.
 	versionFlag bool
+}
+
+// Test is a wrapper around [TestEnv.Test] that ensures features are being
+// run in accordance to label semantics.
+// For example, it will ensure that disruptive tests are not run alongside
+// other tests.
+func (tc *TestContextType) Test(t *testing.T, testFeatures ...types.Feature) context.Context {
+	// TODO(tvs): Validate testFeatures are being run in accordance to label
+	// semantics
+	return tc.TestEnv.Test(t, testFeatures...)
+}
+
+// TestInParallel is a wrapper around [TestEnv.TestInParallel] that ensures
+// features are being run in accordance to label semantics.
+// For example, it will ensure that disruptive or slow tests are not run
+// in parallel.
+func (tc *TestContextType) TestInParallel(t *testing.T, testFeatures ...types.Feature) context.Context {
+	for _, f := range testFeatures {
+		if f.Labels().Contains(testlabels.Disruptive()) {
+			RecordBug(NewBug(fmt.Sprintf("disruptive tests must not be run in parallel: %q", f.Name()), 1))
+		}
+
+		if f.Labels().Contains(testlabels.Slow()) {
+			RecordBug(NewBug(fmt.Sprintf("slow tests must not be run in parallel: %q", f.Name()), 1))
+		}
+	}
+
+	// TODO(tvs): Validate testFeatures are being run in accordance to label
+	// semantics
+	return tc.TestEnv.TestInParallel(t, testFeatures...)
 }
 
 // TestContext should be used by all tests to access common context data.
