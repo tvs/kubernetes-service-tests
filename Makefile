@@ -67,7 +67,7 @@ build: fmt vet ## Build test binary.
 
 .PHONY: run
 run: fmt vet ## Run tests from your host.
-	go test ./test/e2e/ -v -ginkgo.v
+	go test ./test/e2e/ -test.v
 
 # If you wish to build the manager image targeting other platforms you can use the --platform flag.
 # (i.e. docker build --platform linux/arm64). However, you must enable docker buildKit for it.
