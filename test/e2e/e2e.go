@@ -20,11 +20,13 @@ import (
 	"testing"
 
 	"github.com/tvs/kubernetes-service-tests/test/e2e/framework"
+	"github.com/tvs/kubernetes-service-tests/test/e2e/sample"
 )
 
 func RunE2ETests(t *testing.T, tc *framework.TestContextType) {
 	// TODO(tvs): Ensure that tests are invoked for the correct context
 	// e.g., service vs workload
+	sample.SampleTests(t, tc)
 
 	// TODO(tvs): Ensure Cluster and TKC tests can be run separately (or
 	// conjoined) so we can pointedly limit which of the slow lifecycle tests we

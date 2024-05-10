@@ -28,20 +28,24 @@ type TestRunnerBuilder struct {
 	steps []testSequence
 }
 
+// NewTestRunner provides a builder for test runs
 func NewTestRunner() *TestRunnerBuilder {
 	return &TestRunnerBuilder{}
 }
 
+// WithSequence adds a generic sequence to the test run
 func (b *TestRunnerBuilder) WithSequence(s testSequence) *TestRunnerBuilder {
 	b.steps = append(b.steps, s)
 	return b
 }
 
+// WithSerialSequence adds a serialized sequence to the test run
 func (b *TestRunnerBuilder) WithSerialSequence(features ...types.Feature) *TestRunnerBuilder {
 	b.steps = append(b.steps, NewSerialSequence(features...))
 	return b
 }
 
+// WithParallelSequence adds a parallel sequence to the test run
 func (b *TestRunnerBuilder) WithParallelSequence(features ...types.Feature) *TestRunnerBuilder {
 	b.steps = append(b.steps, NewParallelSequence(features...))
 	return b

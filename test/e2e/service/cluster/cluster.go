@@ -32,10 +32,10 @@ func ClusterTests(t *testing.T, tc *framework.TestContextType) {
 	// TODO(tvs): Cluster creation test
 
 	// Run feature tests in parallel
-	parallelFeatures := []features.Feature{}
-	parallelFeatures = append(parallelFeatures, cni.Features(t, tc)...)
-	parallelFeatures = append(parallelFeatures, cloudprovider.Features(t, tc)...)
-	builder.WithParallelSequence(parallelFeatures...)
+	feat := []features.Feature{}
+	feat = append(feat, cni.Features(t, tc)...)
+	feat = append(feat, cloudprovider.Features(t, tc)...)
+	builder.WithParallelSequence(feat...)
 
 	// TODO(tvs): Cluster upgrade test
 

@@ -27,9 +27,12 @@ import (
 )
 
 func WorkloadClusterTests(t *testing.T, tc *framework.TestContextType) {
+	builder := framework.NewTestRunner()
+
 	feat := []features.Feature{}
 	feat = append(feat, cni.Features(t, tc)...)
 	feat = append(feat, cloudprovider.Features(t, tc)...)
+	builder.WithParallelSequence(feat...)
 
-	framework.TestContext.TestEnv.Test(t, feat...)
+	builder.Runner().Test(t, tc)
 }

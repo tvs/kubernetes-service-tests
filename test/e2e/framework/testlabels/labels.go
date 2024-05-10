@@ -21,6 +21,7 @@ const (
 	kindKubernetesService      = "KubernetesService"
 	kindKubernetesDistribution = "KubernetesDistribution"
 	kindWorkloadCluster        = "WorkloadCluster"
+	kindSample                 = "Sample"
 )
 
 func kindLabel(v string) (string, string) {
@@ -46,6 +47,15 @@ func KubernetesDistribution() (string, string) {
 // value must be passed into [features.WithLabel].
 func WorkloadCluster() (string, string) {
 	return kindLabel(kindWorkloadCluster)
+}
+
+// Sample specifies that a certain test or group of tests are targeted to a
+// cluster being used for example purposes. The return value must be passed
+// into [features.WithLabel].
+//
+// TODO(tvs): Remove this once we have legitimate testing
+func Sample() (string, string) {
+	return kindLabel(kindSample)
 }
 
 const (
