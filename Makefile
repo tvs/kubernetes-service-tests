@@ -109,13 +109,19 @@ ifndef ignore-not-found
   ignore-not-found = false
 endif
 
+.PHONY: load-kind
+load-kind: docker-build ## Load container image into the local Kind cluster
+	kind load docker-image $(IMG)
+
+# TODO(tvs): Update 'deploy' to run e2e test pod
 .PHONY: deploy
-deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+deploy: kustomize ## Deploy e2e tests to the K8s cluster specified in ~/.kube/config.
+	cd config/e2e && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | $(KUBECTL) apply -f -
 
+# TODO(tvs): Update 'undeploy' to delete e2e test pod
 .PHONY: undeploy
-undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
+undeploy: kustomize ## Undeploy e2e from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/default | $(KUBECTL) delete --ignore-not-found=$(ignore-not-found) -f -
 
 ##@ Dependencies

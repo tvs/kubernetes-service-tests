@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package cluster
+package tanzukubernetescluster
 
 import (
 	"testing"
@@ -26,10 +26,11 @@ import (
 	"github.com/tvs/kubernetes-service-tests/test/e2e/service/features/addons/cni"
 )
 
-func ClusterTests(t *testing.T, tc *framework.TestContextType) {
+func TanzuKubernetesClusterTests(t *testing.T, tc *framework.TestContextType) {
 	builder := framework.NewTestRunner()
 
-	// TODO(tvs): Cluster creation test
+	// TODO(tvs): TanzuKubernetesCluster creation test
+	//builder.WithSerialSequence(CreateClusterTests(t, tc))
 
 	//builder.WithParallelSequence(CAPIResourceTests(t, tc)...)
 
@@ -38,6 +39,9 @@ func ClusterTests(t *testing.T, tc *framework.TestContextType) {
 	feat = append(feat, cni.Features(t, tc)...)
 	feat = append(feat, cloudprovider.Features(t, tc)...)
 	builder.WithParallelSequence(feat...)
+
+	// TODO(tvs): Cluster scale test
+	//builder.WithSerialSequence(ScaleClusterTests(t, tc))
 
 	// TODO(tvs): Cluster remediation test
 	//builder.WithSerialSequence(RemediateClusterTests(t, tc))

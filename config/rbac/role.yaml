@@ -4,8 +4,10 @@ metadata:
   labels:
     app.kubernetes.io/name: kubernetes-service-tests
     app.kubernetes.io/managed-by: kustomize
-  name: manager-role
+  name: e2e
 rules:
-- apiGroups: [""]
-  resources: ["pods"]
-  verbs: ["get", "list", "watch"]
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+- nonResourceURLs: ["/metrics", "/logs", "/logs/*"]
+  verbs: ["get"]

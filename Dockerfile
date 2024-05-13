@@ -19,13 +19,13 @@ COPY test/e2e test/e2e
 # was called. For example, if we call make docker-build in a local env which has the Apple Silicon M1 SO
 # the docker BUILDPLATFORM arg will be linux/arm64 when for Apple x86 it will be linux/amd64. Therefore,
 # by leaving it empty we can ensure that the container and binary shipped on it will have the same platform.
-RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go test -c -o test ./test/e2e
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go test -c -o test-e2e ./test/e2e
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM gcr.io/distroless/static:debug
 WORKDIR /
-COPY --from=builder /workspace/test .
+COPY --from=builder /workspace/test-e2e .
 USER 65532:65532
 
-ENTRYPOINT ["/test"]
+ENTRYPOINT ["/test-e2e"]

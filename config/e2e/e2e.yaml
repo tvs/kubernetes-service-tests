@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    app.kubernetes.io/name: kubernetes-service-tests
+    app.kubernetes.io/managed-by: kustomize
+  name: system
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: e2e
+  namespace: system
+  labels:
+    app.kubernetes.io/name: kubernetes-service-tests
+    app.kubernetes.io/managed-by: kustomize
+spec:
+  containers:
+  - command:
+    - /test-e2e
+    - -test.v
+    image: kubernetes-service-tests:latest
+    imagePullPolicy: Never
+    name: e2e
+    volumeMounts:
+    - mountPath: /tmp/results
+      name: output-volume
+  - command:
+    - /bin/sh
+    - -c
+    - sleep infinity
+    image: registry.k8s.io/e2e-test-images/busybox:1.36.1-1
+    imagePullPolicy: IfNotPresent
+    name: output-container
+    volumeMounts:
+    - mountPath: /tmp/results
+      name: output-volume
+  restartPolicy: Never
+  serviceAccountName: kubernetes-service-tests
+  tolerations:
+  - operator: Exists
+  volumes:
+  - emptyDir: {}
+    name: output-volume
